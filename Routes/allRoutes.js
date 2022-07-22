@@ -64,7 +64,7 @@ const pdfToDocx = multer({
 
 
 routers.get('/down', (req, res)=>{
-    res.download('./uploads/mycv.pdf')
+    res.send('ok')
 })
 
 
