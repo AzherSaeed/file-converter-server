@@ -5,7 +5,6 @@ const multer = require("multer");
 const path = require("path");
 const libre = require('libreoffice-convert');
 const fs = require('fs')
-const {PDFNet} = require('@pdftron/pdfnet-node');
 const {router} = require("express/lib/application");
 var docxConverter = require('docx-pdf');
 var CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
