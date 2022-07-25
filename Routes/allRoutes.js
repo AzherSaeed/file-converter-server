@@ -11,6 +11,22 @@ var CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
 const unoconv = require('awesome-unoconv');
 var toPdf = require("office-to-pdf")
 var PDFImage = require("pdf-image").PDFImage;
+var converter = require('office-converter')();
+const { fromPath } = require('pdf2pic');
+const {exec} = require('child_process')
+
+
+
+
+
+const imgOptions = {
+    density: 100,
+    saveFilename: "untitled",
+    savePath: "./images",
+    format: "png",
+    width: 600,
+    height: 600
+};
 
 
 
@@ -66,6 +82,23 @@ const pdfToDocx = multer({
 routers.get('/down', (req, res)=>{
     res.send('ok')
 })
+
+
+
+const pdfImageFilter = function (req, file, cb) {
+    if (
+        file.mimetype == "image/png" ||
+        file.mimetype == "image/jpg" ||
+        file.mimetype == "image/jpeg"
+    ) {
+        cb(null, true);
+    } else {
+        cb(null, false);
+        return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
+    }
+};
+
+var imageToPDF = multer({ storage: storage, fileFilter: pdfImageFilter });
 
 
 
@@ -160,16 +193,87 @@ routers.post('/pdftodocx' , pdfToDocx.single('file')   , (req , res) => {
 
 })
 
-routers.post('/pdftoimg' , pdfToDocx.single('file') , (req, res) => {
+// routers.post('/pdftoimg' , pdfToDocx.single('file') , (req, res) => {
+//
+//
+//     const options = {
+//         density: 100,
+//         saveFilename: "untitled",
+//         savePath: "./uploads",
+//         format: "png",
+//         width: 600,
+//         height: 600
+//     };
+//     const storeAsImage = fromPath(req.file.path, options);
+//     const pageToConvertAsImage = 1;
+//
+//     storeAsImage(pageToConvertAsImage).then((resolve) => {
+//         console.log("Page 1 is now converted as image");
+//
+//         return resolve;
+//     });
+//
+//
+//
+// })
 
-    var pdfImage = new PDFImage(req.file.path);
+// routers.post('/officetopdf' , pdfToDocx.single('file') , async (req , res) => {
+//     let path = `./${req.file.path}`
+//     var wordBuffer = fs.readFileSync(path)
+//
+//
+//     var pdfBuffer = await toPdf(wordBuffer)
+//     // return res.status(200).json({
+//     //     success: true,
+//     //     file : pdfBuffer,
+//     //     message: 'your request has been submitted'
+//     // })
+//     res.send(pdfBuffer)
+//
+//
+//     // converter.generatePdf(req.file.filename, function(err, result) {
+//     //     console.log(err)
+//     //     if (result?.status === 0) {
+//     //         console.log('Output File located at ' + result.outputFile);
+//     //     }
+//     // });
+//
+//
+//
+//
+// } )
+//
+//
+// routers.post("/imageToPDF", imageToPDF.array("files", 1000), (req, res) => {
+//     list = "";
+//     if (req.files) {
+//         req.files.forEach((file) => {
+//             list += `${file.path}`;
+//             list += " ";
+//         });
+//
+//         console.log(list);
+//
+//         const outputFilePath = Date.now() +'output.pdf'
+//
+//         exec(`magick convert ${list} ${outputFilePath}`, (err, stderr, stdout) => {
+//             if (err) throw err;
+//
+//             res.download(outputFilePath, (err) => {
+//                 if (err) throw err;
+//
+//                 req.files.forEach((file) => {
+//                     fs.unlinkSync(file.path);
+//                 });
+//
+//                 fs.unlinkSync(outputFilePath);
+//             });
+//         });
+//     }
+// });
 
 
-    console.log(pdfImage)
 
-    pdfImage.convertPage(0).then(function (imagePath) {
-        // 0-th page (first page) of the slide.pdf is available as slide-0.png
-        fs.existsSync(`./uploads/${req.file.path}`) // => true
-    });
-})
+
+
 module.exports = routers
